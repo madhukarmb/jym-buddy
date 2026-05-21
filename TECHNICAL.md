@@ -18,8 +18,7 @@ All server-side concerns live in Firebase. No custom backend.
 | Cloud Firestore | Persistence for Clients, Schedules, Appointments, BillingClosures |
 | Cloud Storage | Client profile pictures |
 | Cloud Functions | Client account creation + scheduled Appointment materialisation |
-| Crashlytics | Crash reporting (web SDK) |
-| Analytics | Basic usage telemetry |
+| Analytics | Basic usage telemetry (web SDK) |
 
 ### 2.1 Why Firestore (not Realtime DB)
 The data model needs range queries by `dateTime`, filters by `status` and `billingStatus`, and per-client scoped reads. Firestore's structured documents, composite indexes, and built-in offline cache fit this shape directly. Realtime DB would force denormalisation and client-side filtering.
@@ -96,8 +95,8 @@ PWA uses standard browser inputs — no native-style permission prompts.
 No geolocation, microphone, contacts, or notifications used in MVP.
 
 ## 10. Observability
-- **Crashlytics** — crash reporting (Flutter integration).
 - **Analytics** — basic events only: `sign_in`, `enrol_client`, `appointment_action` (with action type), `close_billing`. No PII in parameters.
+- **Crash reporting**: deferred for MVP. Firebase Crashlytics does **not** support Flutter Web. If crash reporting becomes necessary, add **Sentry** (`sentry_flutter`, has web support) post-MVP.
 
 ## 11. Testing
 - **Unit tests**: business logic — status transitions, billing aggregation, schedule materialisation rules.
