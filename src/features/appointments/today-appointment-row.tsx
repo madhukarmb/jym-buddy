@@ -1,9 +1,11 @@
+import { useState } from "react";
 import { Alert, Platform, Pressable, StyleSheet, Text, View } from "react-native";
 import {
   cancelAppointment,
   checkIn,
   markNoShow,
 } from "@/features/appointments/actions";
+import { RescheduleModal } from "@/features/appointments/reschedule-modal";
 import { useClient } from "@/features/clients/use-client";
 import type { Appointment, AppointmentStatus } from "@/types/firestore";
 
@@ -50,6 +52,7 @@ export function TodayAppointmentRow({ appointment }: { appointment: Appointment 
   const time = timeFmt.format(appointment.dateTime.toDate());
   const clientName = client?.name ?? "…";
   const isCancelled = appointment.status === "cancelled";
+  const [showReschedule, setShowReschedule] = useState(false);
 
   const onCheckIn = () => checkIn(appointment.id);
   const onNoShow = () => markNoShow(appointment.id);
@@ -57,13 +60,7 @@ export function TodayAppointmentRow({ appointment }: { appointment: Appointment 
     confirmCancel(() => {
       cancelAppointment(appointment.id);
     });
-  const onReschedule = () => {
-    if (Platform.OS === "web" && typeof window !== "undefined") {
-      window.alert("Reschedule — coming in the next step.");
-    } else {
-      Alert.alert("Reschedule", "Coming in the next step.");
-    }
-  };
+  const onReschedule = () => setShowReschedule(true);
 
   return (
     <View style={[styles.row, isCancelled && styles.rowCancelled]}>
@@ -100,6 +97,11 @@ export function TodayAppointmentRow({ appointment }: { appointment: Appointment 
           </Pressable>
         </View>
       )}
+      <RescheduleModal
+        appointment={appointment}
+        visible={showReschedule}
+        onClose={() => setShowReschedule(false)}
+      />
     </View>
   );
 }
