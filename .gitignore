@@ -1,14 +1,8 @@
 # Miscellaneous
-*.class
 *.log
-*.pyc
 *.swp
 .DS_Store
-.atom/
-.buildlog/
 .history
-.svn/
-migrate_working_dir/
 
 # IntelliJ
 *.iml
@@ -19,24 +13,41 @@ migrate_working_dir/
 # VS Code (uncomment to ignore)
 #.vscode/
 
-# Flutter / Dart / Pub
-**/doc/api/
-**/ios/Flutter/.last_build_id
-.dart_tool/
-.flutter-plugins
-.flutter-plugins-dependencies
-.pub-cache/
-.pub/
-/build/
+# Node / dependencies
+node_modules/
 
-# Symbolication / obfuscation
-app.*.symbols
-app.*.map.json
+# Expo
+.expo/
+dist/
+web-build/
+expo-env.d.ts
 
-# Android build artifacts
-/android/app/debug
-/android/app/profile
-/android/app/release
+# Native
+.kotlin/
+*.orig.*
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+
+# Metro
+.metro-health-check*
+
+# Debug
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+
+# Local env files
+.env*.local
+
+# TypeScript
+*.tsbuildinfo
+
+# Generated native folders (Expo prebuild output)
+/ios
+/android
 
 # Firebase / secrets
 .firebaserc.local

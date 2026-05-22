@@ -1,7 +1,7 @@
 # Business Requirements Document — Simple Gym Buddy
 
 ## 1. Overview
-A mobile app for a personal gym trainer to manage client attendance. Built with **Flutter** (cross-platform). MVP scope is limited to attendance tracking and the supporting flows required for it; further features will follow.
+A cross-platform app for a personal gym trainer to manage client attendance. Built with **React Native + Expo** so a single codebase ships installable apps on **iOS**, **Android**, and the **web** (installable PWA). MVP scope is limited to attendance tracking and the supporting flows required for it; further features will follow.
 
 ## 2. Users
 | Role | Purpose |
