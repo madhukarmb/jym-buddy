@@ -9,8 +9,9 @@ import {
   TextInput,
   View,
 } from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
 import { enrolClient } from "@/features/clients/enrol-client";
-import { colors } from "@/lib/theme";
+import { colors, gradients } from "@/lib/theme";
 
 type Props = {
   visible: boolean;
@@ -113,15 +114,22 @@ export function EnrolClientModal({ visible, onClose }: Props) {
               <Text style={styles.btnGhostText}>Cancel</Text>
             </Pressable>
             <Pressable
-              style={[styles.btn, styles.btnPrimary, !canSave && styles.btnDisabled]}
+              style={[styles.btnWrap, !canSave && styles.btnDisabled]}
               onPress={onSave}
               disabled={!canSave}
             >
-              {submitting ? (
-                <ActivityIndicator color="#fff" />
-              ) : (
-                <Text style={styles.btnPrimaryText}>Save</Text>
-              )}
+              <LinearGradient
+                colors={gradients.primary}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={styles.btnPrimary}
+              >
+                {submitting ? (
+                  <ActivityIndicator color={colors.bg} />
+                ) : (
+                  <Text style={styles.btnPrimaryText}>Save</Text>
+                )}
+              </LinearGradient>
             </Pressable>
           </View>
         </Pressable>
@@ -188,7 +196,16 @@ const styles = StyleSheet.create({
   },
   btnGhost: { backgroundColor: "transparent" },
   btnGhostText: { color: colors.textMuted, fontWeight: "700" },
-  btnPrimary: { backgroundColor: colors.mint },
+  btnWrap: {
+    borderRadius: 10,
+    overflow: "hidden",
+    minWidth: 96,
+  },
+  btnPrimary: {
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    alignItems: "center",
+  },
   btnPrimaryText: { color: colors.bg, fontWeight: "800" },
   btnDisabled: { opacity: 0.4 },
 });

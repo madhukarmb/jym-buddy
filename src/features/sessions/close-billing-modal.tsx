@@ -10,7 +10,9 @@ import {
   TextInput,
   View,
 } from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
 import { closeBilling } from "./actions";
+import { colors, gradients } from "@/lib/theme";
 import type { Appointment } from "@/types/firestore";
 
 type Props = {
@@ -128,6 +130,7 @@ export function CloseBillingModal({
               style={styles.amountInput}
               keyboardType="number-pad"
               placeholder="0"
+              placeholderTextColor={colors.textDim}
               value={amount}
               onChangeText={(v) => setAmount(v.replace(/[^0-9]/g, ""))}
               editable={!submitting}
@@ -145,15 +148,22 @@ export function CloseBillingModal({
               <Text style={styles.btnGhostText}>Cancel</Text>
             </Pressable>
             <Pressable
-              style={[styles.btn, styles.btnPrimary, !canConfirm && styles.btnDisabled]}
+              style={[styles.btnWrap, !canConfirm && styles.btnDisabled]}
               onPress={onConfirm}
               disabled={!canConfirm}
             >
-              {submitting ? (
-                <ActivityIndicator color="#fff" />
-              ) : (
-                <Text style={styles.btnPrimaryText}>Confirm</Text>
-              )}
+              <LinearGradient
+                colors={gradients.primary}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={styles.btnPrimary}
+              >
+                {submitting ? (
+                  <ActivityIndicator color={colors.bg} />
+                ) : (
+                  <Text style={styles.btnPrimaryText}>Confirm</Text>
+                )}
+              </LinearGradient>
             </Pressable>
           </View>
         </Pressable>
@@ -165,7 +175,7 @@ export function CloseBillingModal({
 const styles = StyleSheet.create({
   backdrop: {
     flex: 1,
-    backgroundColor: "rgba(0,0,0,0.4)",
+    backgroundColor: "rgba(0,0,0,0.7)",
     justifyContent: "center",
     alignItems: "center",
     padding: 16,
@@ -174,22 +184,24 @@ const styles = StyleSheet.create({
     width: "100%",
     maxWidth: 480,
     maxHeight: "90%",
-    backgroundColor: "#fff",
-    borderRadius: 12,
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: 16,
     padding: 20,
     gap: 8,
     ...(Platform.OS === "web"
-      ? { boxShadow: "0 10px 30px rgba(0,0,0,0.2)" as unknown as never }
+      ? { boxShadow: "0 10px 30px rgba(0,0,0,0.5)" as unknown as never }
       : {
           shadowColor: "#000",
-          shadowOpacity: 0.15,
+          shadowOpacity: 0.4,
           shadowOffset: { width: 0, height: 6 },
           shadowRadius: 16,
           elevation: 6,
         }),
   },
-  title: { fontSize: 18, fontWeight: "700" },
-  summary: { fontSize: 13, color: "#555" },
+  title: { fontSize: 18, fontWeight: "800", color: colors.text },
+  summary: { fontSize: 13, color: colors.textMuted },
   list: { maxHeight: 280, marginTop: 4 },
   row: {
     flexDirection: "row",
@@ -197,44 +209,61 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     gap: 12,
     borderBottomWidth: 1,
-    borderBottomColor: "#f0f0f0",
+    borderBottomColor: colors.border,
   },
   checkbox: {
     width: 22,
     height: 22,
-    borderRadius: 4,
+    borderRadius: 6,
     borderWidth: 2,
-    borderColor: "#208AEF",
+    borderColor: colors.mint,
     alignItems: "center",
     justifyContent: "center",
   },
-  checkboxOn: { backgroundColor: "#208AEF" },
-  checkmark: { color: "#fff", fontWeight: "700", fontSize: 14 },
-  rowTime: { fontSize: 14, fontWeight: "600" },
-  rowStatus: { fontSize: 12, color: "#666", marginTop: 2 },
-  label: { fontSize: 12, color: "#666", textTransform: "uppercase", marginTop: 12 },
+  checkboxOn: { backgroundColor: colors.mint },
+  checkmark: { color: colors.bg, fontWeight: "800", fontSize: 14 },
+  rowTime: { fontSize: 14, fontWeight: "700", color: colors.text },
+  rowStatus: { fontSize: 12, color: colors.textMuted, marginTop: 2 },
+  label: {
+    fontSize: 11,
+    color: colors.textDim,
+    textTransform: "uppercase",
+    marginTop: 12,
+    fontWeight: "700",
+    letterSpacing: 0.5,
+  },
   amountRow: {
     flexDirection: "row",
     alignItems: "center",
     borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 8,
-    paddingHorizontal: 10,
+    borderColor: colors.border,
+    backgroundColor: colors.bg,
+    borderRadius: 10,
+    paddingHorizontal: 12,
   },
-  rupee: { fontSize: 18, color: "#444", marginRight: 4 },
-  amountInput: { flex: 1, fontSize: 16, paddingVertical: 10 },
+  rupee: { fontSize: 18, color: colors.text, marginRight: 4, fontWeight: "700" },
+  amountInput: { flex: 1, fontSize: 16, paddingVertical: 12, color: colors.text },
   actions: { flexDirection: "row", justifyContent: "flex-end", gap: 8, marginTop: 12 },
   btn: {
-    paddingVertical: 10,
+    paddingVertical: 12,
     paddingHorizontal: 16,
-    borderRadius: 8,
+    borderRadius: 10,
     alignItems: "center",
     minWidth: 96,
   },
   btnGhost: { backgroundColor: "transparent" },
-  btnGhostText: { color: "#444", fontWeight: "600" },
-  btnPrimary: { backgroundColor: "#208AEF" },
-  btnPrimaryText: { color: "#fff", fontWeight: "600" },
-  btnDisabled: { opacity: 0.5 },
-  error: { color: "#c62828", fontSize: 13, marginTop: 8 },
+  btnGhostText: { color: colors.textMuted, fontWeight: "700" },
+  btnWrap: {
+    borderRadius: 10,
+    overflow: "hidden",
+    minWidth: 96,
+  },
+  btnPrimary: {
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    alignItems: "center",
+  },
+  btnPrimaryText: { color: colors.bg, fontWeight: "800" },
+  btnDisabled: { opacity: 0.4 },
+  error: { color: colors.danger, fontSize: 13, marginTop: 8 },
 });
