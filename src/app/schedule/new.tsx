@@ -4,6 +4,7 @@ import {
   Pressable,
   ScrollView,
   StyleSheet,
+  Switch,
   Text,
   View,
 } from "react-native";
@@ -13,9 +14,31 @@ import { useClient } from "@/features/clients/use-client";
 import { DateTimeField } from "@/components/datetime-field";
 import { ClientPickerModal } from "@/features/schedules/client-picker-modal";
 import { createOneOffAppointment } from "@/features/schedules/create-one-off";
-import type { Client } from "@/types/firestore";
+import { createRecurringSchedule } from "@/features/schedules/create-recurring";
+import { SlotEditorModal } from "@/features/schedules/slot-editor-modal";
+import type { Client, ScheduleSlot, Weekday } from "@/types/firestore";
+
+type Mode = "recurring" | "oneoff";
 
 const DURATIONS = [30, 45, 60, 90] as const;
+const WEEKDAY_NAMES: Record<Weekday, string> = {
+  0: "Sunday",
+  1: "Monday",
+  2: "Tuesday",
+  3: "Wednesday",
+  4: "Thursday",
+  5: "Friday",
+  6: "Saturday",
+};
+const WEEKDAY_ORDER: Record<Weekday, number> = {
+  1: 0,
+  2: 1,
+  3: 2,
+  4: 3,
+  5: 4,
+  6: 5,
+  0: 6,
+};
 
 function defaultDateTime(): Date {
   const d = new Date();
@@ -24,14 +47,60 @@ function defaultDateTime(): Date {
   return d;
 }
 
+function startOfToday(): Date {
+  const d = new Date();
+  d.setHours(0, 0, 0, 0);
+  return d;
+}
+
+function formatSlot(slot: ScheduleSlot): string {
+  const h12 = ((slot.startHour + 11) % 12) + 1;
+  const ampm = slot.startHour >= 12 ? "PM" : "AM";
+  const mm = slot.startMinute.toString().padStart(2, "0");
+  return `${WEEKDAY_NAMES[slot.weekday]} · ${h12}:${mm} ${ampm} · ${slot.durationMinutes} min`;
+}
+
+function sortSlots(slots: ScheduleSlot[]): ScheduleSlot[] {
+  return [...slots].sort((a, b) => {
+    if (a.weekday !== b.weekday)
+      return WEEKDAY_ORDER[a.weekday] - WEEKDAY_ORDER[b.weekday];
+    if (a.startHour !== b.startHour) return a.startHour - b.startHour;
+    return a.startMinute - b.startMinute;
+  });
+}
+
+const dateFmt = new Intl.DateTimeFormat(undefined, {
+  weekday: "short",
+  day: "numeric",
+  month: "short",
+  year: "numeric",
+});
+
 export default function NewSchedule() {
   const role = useAuth((s) => s.user?.role);
   const { clientId: paramId } = useLocalSearchParams<{ clientId?: string }>();
 
   const [pickedClient, setPickedClient] = useState<Client | null>(null);
   const [picking, setPicking] = useState(false);
+  const [mode, setMode] = useState<Mode>("recurring");
+
+  // One-off state
   const [dateTime, setDateTime] = useState<Date>(defaultDateTime);
-  const [durationMinutes, setDurationMinutes] = useState<number>(60);
+  const [oneOffDuration, setOneOffDuration] = useState<number>(60);
+
+  // Recurring state
+  const [slots, setSlots] = useState<ScheduleSlot[]>([]);
+  const [editingSlot, setEditingSlot] = useState<ScheduleSlot | null>(null);
+  const [editingIndex, setEditingIndex] = useState<number | null>(null);
+  const [slotOpen, setSlotOpen] = useState(false);
+  const [startDate, setStartDate] = useState<Date>(startOfToday);
+  const [hasEndDate, setHasEndDate] = useState(false);
+  const [endDate, setEndDate] = useState<Date>(() => {
+    const d = startOfToday();
+    d.setDate(d.getDate() + 28);
+    return d;
+  });
+
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -40,21 +109,60 @@ export default function NewSchedule() {
   const clientLoading = Boolean(paramId) && !presetClient;
 
   const canSave = useMemo(() => {
-    return Boolean(client) && dateTime.getTime() > Date.now() && !submitting;
-  }, [client, dateTime, submitting]);
+    if (!client || submitting) return false;
+    if (mode === "oneoff") return true;
+    if (slots.length === 0) return false;
+    if (hasEndDate && endDate.getTime() < startDate.getTime()) return false;
+    return true;
+  }, [client, submitting, mode, slots, hasEndDate, endDate, startDate]);
 
   if (role !== "trainer") return <Redirect href="/" />;
+
+  const openAddSlot = () => {
+    setEditingSlot(null);
+    setEditingIndex(null);
+    setSlotOpen(true);
+  };
+
+  const openEditSlot = (index: number) => {
+    setEditingSlot(slots[index]);
+    setEditingIndex(index);
+    setSlotOpen(true);
+  };
+
+  const handleSlotSave = (slot: ScheduleSlot) => {
+    if (editingIndex !== null) {
+      const next = [...slots];
+      next[editingIndex] = slot;
+      setSlots(sortSlots(next));
+    } else {
+      setSlots(sortSlots([...slots, slot]));
+    }
+  };
+
+  const handleSlotRemove = (index: number) => {
+    setSlots(slots.filter((_, i) => i !== index));
+  };
 
   const onSave = async () => {
     if (!client) return;
     setSubmitting(true);
     setError(null);
     try {
-      await createOneOffAppointment({
-        clientId: client.id,
-        dateTime,
-        durationMinutes,
-      });
+      if (mode === "oneoff") {
+        await createOneOffAppointment({
+          clientId: client.id,
+          dateTime,
+          durationMinutes: oneOffDuration,
+        });
+      } else {
+        await createRecurringSchedule({
+          clientId: client.id,
+          slots,
+          startDate,
+          endDate: hasEndDate ? endDate : null,
+        });
+      }
       router.back();
     } catch (e) {
       setError(e instanceof Error ? e.message : "Save failed");
@@ -94,34 +202,117 @@ export default function NewSchedule() {
 
       <Text style={styles.label}>Type</Text>
       <View style={styles.segment}>
-        <View style={[styles.segmentBtn, styles.segmentDisabled]}>
-          <Text style={styles.segmentDisabledText}>Recurring (soon)</Text>
-        </View>
-        <View style={[styles.segmentBtn, styles.segmentActive]}>
-          <Text style={styles.segmentActiveText}>One-off</Text>
-        </View>
+        <Pressable
+          style={[styles.segmentBtn, mode === "recurring" && styles.segmentActive]}
+          onPress={() => setMode("recurring")}
+        >
+          <Text
+            style={mode === "recurring" ? styles.segmentActiveText : styles.segmentText}
+          >
+            Recurring
+          </Text>
+        </Pressable>
+        <Pressable
+          style={[styles.segmentBtn, mode === "oneoff" && styles.segmentActive]}
+          onPress={() => setMode("oneoff")}
+        >
+          <Text
+            style={mode === "oneoff" ? styles.segmentActiveText : styles.segmentText}
+          >
+            One-off
+          </Text>
+        </Pressable>
       </View>
 
-      <Text style={styles.label}>When</Text>
-      <DateTimeField value={dateTime} minimumDate={new Date()} onChange={setDateTime} />
+      {mode === "oneoff" ? (
+        <>
+          <Text style={styles.label}>When</Text>
+          <DateTimeField
+            value={dateTime}
+            minimumDate={new Date()}
+            onChange={setDateTime}
+          />
 
-      <Text style={styles.label}>Duration</Text>
-      <View style={styles.chips}>
-        {DURATIONS.map((d) => {
-          const selected = d === durationMinutes;
-          return (
-            <Pressable
-              key={d}
-              style={[styles.chip, selected && styles.chipSelected]}
-              onPress={() => setDurationMinutes(d)}
-            >
-              <Text style={[styles.chipText, selected && styles.chipTextSelected]}>
-                {d} min
-              </Text>
-            </Pressable>
-          );
-        })}
-      </View>
+          <Text style={styles.label}>Duration</Text>
+          <View style={styles.chips}>
+            {DURATIONS.map((d) => {
+              const selected = d === oneOffDuration;
+              return (
+                <Pressable
+                  key={d}
+                  style={[styles.chip, selected && styles.chipSelected]}
+                  onPress={() => setOneOffDuration(d)}
+                >
+                  <Text
+                    style={[styles.chipText, selected && styles.chipTextSelected]}
+                  >
+                    {d} min
+                  </Text>
+                </Pressable>
+              );
+            })}
+          </View>
+        </>
+      ) : (
+        <>
+          <Text style={styles.label}>Slots</Text>
+          {slots.length === 0 ? (
+            <Text style={styles.muted}>
+              Add at least one slot to define the weekly pattern.
+            </Text>
+          ) : (
+            <View style={styles.slotList}>
+              {slots.map((s, i) => (
+                <View key={i} style={styles.slotRow}>
+                  <Pressable style={{ flex: 1 }} onPress={() => openEditSlot(i)}>
+                    <Text style={styles.slotText}>{formatSlot(s)}</Text>
+                  </Pressable>
+                  <Pressable onPress={() => handleSlotRemove(i)} hitSlop={8}>
+                    <Text style={styles.slotRemove}>×</Text>
+                  </Pressable>
+                </View>
+              ))}
+            </View>
+          )}
+          <Pressable style={styles.addSlot} onPress={openAddSlot}>
+            <Text style={styles.addSlotText}>+ Add slot</Text>
+          </Pressable>
+
+          <Text style={styles.label}>Start date</Text>
+          <DateTimeField
+            value={startDate}
+            minimumDate={startOfToday()}
+            onChange={(d) => {
+              const at0 = new Date(d);
+              at0.setHours(0, 0, 0, 0);
+              setStartDate(at0);
+            }}
+          />
+
+          <View style={styles.endRow}>
+            <Text style={styles.label}>End date</Text>
+            <Switch value={hasEndDate} onValueChange={setHasEndDate} />
+          </View>
+          {hasEndDate ? (
+            <DateTimeField
+              value={endDate}
+              minimumDate={startDate}
+              onChange={(d) => {
+                const at0 = new Date(d);
+                at0.setHours(0, 0, 0, 0);
+                setEndDate(at0);
+              }}
+            />
+          ) : (
+            <Text style={styles.muted}>Indefinite — runs until ended manually.</Text>
+          )}
+
+          <Text style={styles.hint}>
+            Saving creates the schedule and books the next 60 days of appointments.
+            {hasEndDate ? ` Ends ${dateFmt.format(endDate)}.` : ""}
+          </Text>
+        </>
+      )}
 
       {error ? <Text style={styles.error}>{error}</Text> : null}
 
@@ -142,6 +333,12 @@ export default function NewSchedule() {
         onClose={() => setPicking(false)}
         onSelect={setPickedClient}
       />
+      <SlotEditorModal
+        visible={slotOpen}
+        initial={editingSlot}
+        onClose={() => setSlotOpen(false)}
+        onSave={handleSlotSave}
+      />
     </ScrollView>
   );
 }
@@ -152,6 +349,8 @@ const styles = StyleSheet.create({
   backText: { color: "#208AEF", fontSize: 15, fontWeight: "600" },
   title: { fontSize: 22, fontWeight: "700", marginBottom: 8 },
   label: { fontSize: 12, color: "#666", textTransform: "uppercase", marginTop: 8 },
+  muted: { color: "#666", fontSize: 13 },
+  hint: { color: "#888", fontSize: 12, marginTop: 4 },
   clientCard: {
     flexDirection: "row",
     alignItems: "center",
@@ -181,11 +380,15 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     overflow: "hidden",
   },
-  segmentBtn: { flex: 1, paddingVertical: 10, alignItems: "center" },
+  segmentBtn: {
+    flex: 1,
+    paddingVertical: 10,
+    alignItems: "center",
+    backgroundColor: "#fff",
+  },
   segmentActive: { backgroundColor: "#208AEF" },
+  segmentText: { color: "#444", fontWeight: "600" },
   segmentActiveText: { color: "#fff", fontWeight: "600" },
-  segmentDisabled: { backgroundColor: "#f5f5f5" },
-  segmentDisabledText: { color: "#999" },
   chips: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
   chip: {
     borderWidth: 1,
@@ -198,6 +401,33 @@ const styles = StyleSheet.create({
   chipSelected: { backgroundColor: "#208AEF", borderColor: "#208AEF" },
   chipText: { fontSize: 15, fontWeight: "500" },
   chipTextSelected: { color: "#fff" },
+  slotList: { gap: 8 },
+  slotRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    padding: 12,
+    borderWidth: 1,
+    borderColor: "#e0e0e0",
+    borderRadius: 8,
+    backgroundColor: "#fff",
+  },
+  slotText: { fontSize: 15, fontWeight: "500" },
+  slotRemove: { color: "#c62828", fontSize: 22, fontWeight: "700", paddingHorizontal: 4 },
+  addSlot: {
+    borderWidth: 1,
+    borderStyle: "dashed",
+    borderColor: "#208AEF",
+    borderRadius: 8,
+    padding: 12,
+    alignItems: "center",
+  },
+  addSlotText: { color: "#208AEF", fontWeight: "600" },
+  endRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginTop: 8,
+  },
   save: {
     backgroundColor: "#208AEF",
     paddingVertical: 14,

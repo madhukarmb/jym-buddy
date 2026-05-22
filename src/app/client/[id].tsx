@@ -2,6 +2,7 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { Link, Redirect, router, useLocalSearchParams } from "expo-router";
 import { useAuth } from "@/lib/auth";
 import { useClient } from "@/features/clients/use-client";
+import { ActiveSchedulesSection } from "@/features/schedules/active-schedules-section";
 
 export default function ClientDetail() {
   const role = useAuth((s) => s.user?.role);
@@ -29,9 +30,7 @@ export default function ClientDetail() {
       </View>
 
       <Text style={styles.sectionTitle}>Active Schedules</Text>
-      <View style={styles.placeholder}>
-        <Text style={styles.muted}>Schedules coming in the next step.</Text>
-      </View>
+      {id ? <ActiveSchedulesSection clientId={id} /> : null}
 
       <Text style={styles.sectionTitle}>Shortcuts</Text>
       <Link
