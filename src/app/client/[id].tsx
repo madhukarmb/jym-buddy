@@ -3,6 +3,7 @@ import { Link, Redirect, router, useLocalSearchParams } from "expo-router";
 import { useAuth } from "@/lib/auth";
 import { useClient } from "@/features/clients/use-client";
 import { ActiveSchedulesSection } from "@/features/schedules/active-schedules-section";
+import { colors } from "@/lib/theme";
 
 export default function ClientDetail() {
   const role = useAuth((s) => s.user?.role);
@@ -42,7 +43,7 @@ export default function ClientDetail() {
         </Pressable>
       </Link>
       <Link href={{ pathname: "/sessions/[clientId]", params: { clientId: id } }} asChild>
-        <Pressable style={[styles.shortcut, styles.shortcutSecondary]}>
+        <Pressable style={styles.shortcutSecondary}>
           <Text style={styles.shortcutSecondaryText}>View Sessions for this client</Text>
         </Pressable>
       </Link>
@@ -51,50 +52,52 @@ export default function ClientDetail() {
 }
 
 const styles = StyleSheet.create({
-  container: { padding: 16, gap: 16 },
+  container: { padding: 16, gap: 16, backgroundColor: colors.bg, flexGrow: 1 },
   back: { paddingVertical: 4 },
-  backText: { color: "#208AEF", fontSize: 15, fontWeight: "600" },
+  backText: { color: colors.mint, fontSize: 15, fontWeight: "700" },
   profile: {
     flexDirection: "row",
     alignItems: "center",
     gap: 12,
-    padding: 12,
+    padding: 16,
     borderWidth: 1,
-    borderColor: "#e0e0e0",
-    borderRadius: 8,
-    backgroundColor: "#fff",
+    borderColor: colors.border,
+    borderRadius: 12,
+    backgroundColor: colors.surface,
   },
   avatar: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    backgroundColor: "#e3f2fd",
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: colors.mintSoft,
     alignItems: "center",
     justifyContent: "center",
   },
-  avatarText: { color: "#0d47a1", fontWeight: "700", fontSize: 22 },
-  name: { fontSize: 18, fontWeight: "700" },
-  email: { fontSize: 14, color: "#666", marginTop: 2 },
-  sectionTitle: { fontSize: 14, fontWeight: "600", color: "#333", marginTop: 8 },
-  placeholder: {
-    borderWidth: 1,
-    borderStyle: "dashed",
-    borderColor: "#ccc",
-    borderRadius: 8,
-    padding: 16,
+  avatarText: { color: colors.mint, fontWeight: "800", fontSize: 24 },
+  name: { fontSize: 20, fontWeight: "800", color: colors.text },
+  email: { fontSize: 14, color: colors.textMuted, marginTop: 2 },
+  sectionTitle: {
+    fontSize: 13,
+    fontWeight: "700",
+    color: colors.textMuted,
+    marginTop: 8,
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
   },
-  muted: { color: "#666", fontSize: 13 },
   shortcut: {
-    backgroundColor: "#208AEF",
-    paddingVertical: 12,
-    borderRadius: 8,
+    backgroundColor: colors.mint,
+    paddingVertical: 14,
+    borderRadius: 12,
     alignItems: "center",
   },
-  shortcutText: { color: "#fff", fontWeight: "600" },
+  shortcutText: { color: colors.bg, fontWeight: "700" },
   shortcutSecondary: {
-    backgroundColor: "#fff",
+    backgroundColor: "transparent",
     borderWidth: 1,
-    borderColor: "#208AEF",
+    borderColor: colors.lavender,
+    paddingVertical: 14,
+    borderRadius: 12,
+    alignItems: "center",
   },
-  shortcutSecondaryText: { color: "#208AEF", fontWeight: "600" },
+  shortcutSecondaryText: { color: colors.lavender, fontWeight: "700" },
 });

@@ -10,6 +10,7 @@ import {
   View,
 } from "react-native";
 import { enrolClient } from "@/features/clients/enrol-client";
+import { colors } from "@/lib/theme";
 
 type Props = {
   visible: boolean;
@@ -68,6 +69,7 @@ export function EnrolClientModal({ visible, onClose }: Props) {
           <TextInput
             style={styles.input}
             placeholder="Full name"
+            placeholderTextColor={colors.textDim}
             value={name}
             onChangeText={setName}
             maxLength={80}
@@ -78,6 +80,7 @@ export function EnrolClientModal({ visible, onClose }: Props) {
           <TextInput
             style={styles.input}
             placeholder="client@example.com"
+            placeholderTextColor={colors.textDim}
             autoCapitalize="none"
             keyboardType="email-address"
             value={email}
@@ -89,6 +92,7 @@ export function EnrolClientModal({ visible, onClose }: Props) {
           <TextInput
             style={styles.input}
             placeholder="At least 6 characters"
+            placeholderTextColor={colors.textDim}
             secureTextEntry
             value={password}
             onChangeText={setPassword}
@@ -129,7 +133,7 @@ export function EnrolClientModal({ visible, onClose }: Props) {
 const styles = StyleSheet.create({
   backdrop: {
     flex: 1,
-    backgroundColor: "rgba(0,0,0,0.4)",
+    backgroundColor: "rgba(0,0,0,0.7)",
     justifyContent: "center",
     alignItems: "center",
     padding: 16,
@@ -137,43 +141,54 @@ const styles = StyleSheet.create({
   card: {
     width: "100%",
     maxWidth: 440,
-    backgroundColor: "#fff",
-    borderRadius: 12,
+    backgroundColor: colors.surface,
+    borderRadius: 16,
     padding: 20,
     gap: 8,
+    borderWidth: 1,
+    borderColor: colors.border,
     ...(Platform.OS === "web"
-      ? { boxShadow: "0 10px 30px rgba(0,0,0,0.2)" as unknown as never }
+      ? { boxShadow: "0 10px 30px rgba(0,0,0,0.5)" as unknown as never }
       : {
           shadowColor: "#000",
-          shadowOpacity: 0.15,
+          shadowOpacity: 0.4,
           shadowOffset: { width: 0, height: 6 },
           shadowRadius: 16,
           elevation: 6,
         }),
   },
-  title: { fontSize: 18, fontWeight: "700", marginBottom: 8 },
-  label: { fontSize: 12, color: "#666", textTransform: "uppercase", marginTop: 6 },
+  title: { fontSize: 18, fontWeight: "800", marginBottom: 8, color: colors.text },
+  label: {
+    fontSize: 11,
+    color: colors.textDim,
+    textTransform: "uppercase",
+    marginTop: 6,
+    fontWeight: "700",
+    letterSpacing: 0.5,
+  },
   input: {
     borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 8,
+    borderColor: colors.border,
+    backgroundColor: colors.bg,
+    borderRadius: 10,
     paddingHorizontal: 12,
-    paddingVertical: 10,
+    paddingVertical: 12,
     fontSize: 16,
+    color: colors.text,
   },
-  hint: { fontSize: 12, color: "#888", marginTop: 2 },
-  error: { color: "#c62828", fontSize: 13, marginTop: 8 },
+  hint: { fontSize: 12, color: colors.textDim, marginTop: 2 },
+  error: { color: colors.danger, fontSize: 13, marginTop: 8 },
   actions: { flexDirection: "row", justifyContent: "flex-end", gap: 8, marginTop: 12 },
   btn: {
-    paddingVertical: 10,
+    paddingVertical: 12,
     paddingHorizontal: 16,
-    borderRadius: 8,
+    borderRadius: 10,
     alignItems: "center",
     minWidth: 96,
   },
   btnGhost: { backgroundColor: "transparent" },
-  btnGhostText: { color: "#444", fontWeight: "600" },
-  btnPrimary: { backgroundColor: "#208AEF" },
-  btnPrimaryText: { color: "#fff", fontWeight: "600" },
-  btnDisabled: { opacity: 0.5 },
+  btnGhostText: { color: colors.textMuted, fontWeight: "700" },
+  btnPrimary: { backgroundColor: colors.mint },
+  btnPrimaryText: { color: colors.bg, fontWeight: "800" },
+  btnDisabled: { opacity: 0.4 },
 });

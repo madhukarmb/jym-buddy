@@ -8,6 +8,7 @@ import {
 import { RescheduleModal } from "@/features/appointments/reschedule-modal";
 import { useClient } from "@/features/clients/use-client";
 import type { Appointment, AppointmentStatus } from "@/types/firestore";
+import { colors } from "@/lib/theme";
 
 const timeFmt = new Intl.DateTimeFormat("en-IN", {
   hour: "numeric",
@@ -23,11 +24,11 @@ const STATUS_LABEL: Record<AppointmentStatus, string> = {
 };
 
 const STATUS_COLOR: Record<AppointmentStatus, string> = {
-  scheduled: "#888",
-  checked_in: "#2e7d32",
-  no_show: "#d32f2f",
-  cancelled: "#888",
-  rescheduled: "#888",
+  scheduled: colors.textMuted,
+  checked_in: colors.mint,
+  no_show: colors.danger,
+  cancelled: colors.textDim,
+  rescheduled: colors.textDim,
 };
 
 function confirmCancel(onConfirm: () => void) {
@@ -109,30 +110,30 @@ export function TodayAppointmentRow({ appointment }: { appointment: Appointment 
 const styles = StyleSheet.create({
   row: {
     borderWidth: 1,
-    borderColor: "#e0e0e0",
-    borderRadius: 8,
+    borderColor: colors.border,
+    borderRadius: 12,
     padding: 12,
     gap: 10,
-    backgroundColor: "#fff",
+    backgroundColor: colors.surface,
   },
-  rowCancelled: { backgroundColor: "#fafafa", opacity: 0.7 },
+  rowCancelled: { opacity: 0.55 },
   head: { flexDirection: "row", alignItems: "center", gap: 12 },
-  time: { fontSize: 16, fontWeight: "600", width: 72 },
-  name: { fontSize: 16, flex: 1 },
-  struck: { textDecorationLine: "line-through", color: "#888" },
-  status: { fontSize: 12, fontWeight: "600", textTransform: "uppercase" },
+  time: { fontSize: 16, fontWeight: "700", width: 72, color: colors.text },
+  name: { fontSize: 16, flex: 1, color: colors.text },
+  struck: { textDecorationLine: "line-through", color: colors.textDim },
+  status: { fontSize: 11, fontWeight: "700", textTransform: "uppercase", letterSpacing: 0.5 },
   actions: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
   btn: {
     paddingVertical: 6,
     paddingHorizontal: 12,
-    borderRadius: 6,
+    borderRadius: 8,
     borderWidth: 1,
-    borderColor: "#ccc",
-    backgroundColor: "#f5f5f5",
+    borderColor: colors.border,
+    backgroundColor: colors.surfaceElevated,
   },
-  btnText: { fontSize: 13, fontWeight: "500" },
-  btnActiveGreen: { backgroundColor: "#2e7d32", borderColor: "#2e7d32" },
-  btnActiveRed: { backgroundColor: "#d32f2f", borderColor: "#d32f2f" },
-  btnTextActive: { color: "#fff" },
-  btnDanger: { color: "#d32f2f" },
+  btnText: { fontSize: 13, fontWeight: "600", color: colors.textMuted },
+  btnActiveGreen: { backgroundColor: colors.mint, borderColor: colors.mint },
+  btnActiveRed: { backgroundColor: colors.danger, borderColor: colors.danger },
+  btnTextActive: { color: colors.bg },
+  btnDanger: { color: colors.danger },
 });

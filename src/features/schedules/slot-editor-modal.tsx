@@ -9,6 +9,7 @@ import {
 } from "react-native";
 import { DateTimeField } from "@/components/datetime-field";
 import type { ScheduleSlot, Weekday } from "@/types/firestore";
+import { colors } from "@/lib/theme";
 
 type Props = {
   visible: boolean;
@@ -143,7 +144,7 @@ export function SlotEditorModal({ visible, initial, onClose, onSave }: Props) {
 const styles = StyleSheet.create({
   backdrop: {
     flex: 1,
-    backgroundColor: "rgba(0,0,0,0.4)",
+    backgroundColor: "rgba(0,0,0,0.7)",
     justifyContent: "center",
     alignItems: "center",
     padding: 16,
@@ -151,44 +152,53 @@ const styles = StyleSheet.create({
   card: {
     width: "100%",
     maxWidth: 480,
-    backgroundColor: "#fff",
-    borderRadius: 12,
+    backgroundColor: colors.surface,
+    borderRadius: 16,
     padding: 20,
     gap: 8,
+    borderWidth: 1,
+    borderColor: colors.border,
     ...(Platform.OS === "web"
-      ? { boxShadow: "0 10px 30px rgba(0,0,0,0.2)" as unknown as never }
+      ? { boxShadow: "0 10px 30px rgba(0,0,0,0.5)" as unknown as never }
       : {
           shadowColor: "#000",
-          shadowOpacity: 0.15,
+          shadowOpacity: 0.4,
           shadowOffset: { width: 0, height: 6 },
           shadowRadius: 16,
           elevation: 6,
         }),
   },
-  title: { fontSize: 18, fontWeight: "700", marginBottom: 4 },
-  label: { fontSize: 12, color: "#666", textTransform: "uppercase", marginTop: 8 },
+  title: { fontSize: 18, fontWeight: "800", marginBottom: 4, color: colors.text },
+  label: {
+    fontSize: 11,
+    color: colors.textDim,
+    textTransform: "uppercase",
+    marginTop: 8,
+    fontWeight: "700",
+    letterSpacing: 0.5,
+  },
   chips: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
   chip: {
     borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 8,
+    borderColor: colors.border,
+    borderRadius: 10,
     paddingVertical: 8,
-    paddingHorizontal: 12,
-    backgroundColor: "#fff",
+    paddingHorizontal: 14,
+    backgroundColor: colors.bg,
   },
-  chipSelected: { backgroundColor: "#208AEF", borderColor: "#208AEF" },
-  chipText: { fontSize: 14, fontWeight: "500" },
-  chipTextSelected: { color: "#fff" },
+  chipSelected: { backgroundColor: colors.mint, borderColor: colors.mint },
+  chipText: { fontSize: 14, fontWeight: "600", color: colors.text },
+  chipTextSelected: { color: colors.bg, fontWeight: "800" },
   actions: { flexDirection: "row", justifyContent: "flex-end", gap: 8, marginTop: 16 },
   btn: {
-    paddingVertical: 10,
+    paddingVertical: 12,
     paddingHorizontal: 16,
-    borderRadius: 8,
+    borderRadius: 10,
     alignItems: "center",
     minWidth: 96,
   },
   btnGhost: { backgroundColor: "transparent" },
-  btnGhostText: { color: "#444", fontWeight: "600" },
-  btnPrimary: { backgroundColor: "#208AEF" },
-  btnPrimaryText: { color: "#fff", fontWeight: "600" },
+  btnGhostText: { color: colors.textMuted, fontWeight: "700" },
+  btnPrimary: { backgroundColor: colors.mint },
+  btnPrimaryText: { color: colors.bg, fontWeight: "800" },
 });

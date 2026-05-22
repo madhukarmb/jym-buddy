@@ -2,6 +2,7 @@ import { useState } from "react";
 import { ActivityIndicator, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 import { Redirect } from "expo-router";
 import { useAuth } from "@/lib/auth";
+import { colors } from "@/lib/theme";
 
 export default function Login() {
   const signIn = useAuth((s) => s.signIn);
@@ -28,11 +29,12 @@ export default function Login() {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Simple Gym Buddy</Text>
-      <Text style={styles.subtitle}>Sign in</Text>
+      <Text style={styles.subtitle}>Find your strength</Text>
 
       <TextInput
         style={styles.input}
         placeholder="Email"
+        placeholderTextColor={colors.textDim}
         autoCapitalize="none"
         autoComplete="email"
         keyboardType="email-address"
@@ -43,6 +45,7 @@ export default function Login() {
       <TextInput
         style={styles.input}
         placeholder="Password"
+        placeholderTextColor={colors.textDim}
         secureTextEntry
         autoComplete="current-password"
         value={password}
@@ -59,7 +62,7 @@ export default function Login() {
         disabled={submitting}
       >
         {submitting ? (
-          <ActivityIndicator color="#fff" />
+          <ActivityIndicator color={colors.bg} />
         ) : (
           <Text style={styles.btnText}>Sign in</Text>
         )}
@@ -77,25 +80,40 @@ const styles = StyleSheet.create({
     maxWidth: 480,
     width: "100%",
     alignSelf: "center",
+    backgroundColor: colors.bg,
   },
-  title: { fontSize: 28, fontWeight: "700", textAlign: "center" },
-  subtitle: { fontSize: 16, color: "#666", textAlign: "center", marginBottom: 16 },
+  title: {
+    fontSize: 32,
+    fontWeight: "800",
+    textAlign: "center",
+    color: colors.text,
+    letterSpacing: -0.5,
+  },
+  subtitle: {
+    fontSize: 15,
+    color: colors.mint,
+    textAlign: "center",
+    marginBottom: 16,
+    fontWeight: "600",
+  },
   input: {
     borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    fontSize: 16,
-  },
-  error: { color: "#d32f2f", fontSize: 14, textAlign: "center" },
-  btn: {
-    backgroundColor: "#208AEF",
+    borderColor: colors.border,
+    backgroundColor: colors.surface,
+    borderRadius: 12,
+    paddingHorizontal: 14,
     paddingVertical: 12,
-    borderRadius: 8,
+    fontSize: 16,
+    color: colors.text,
+  },
+  error: { color: colors.danger, fontSize: 14, textAlign: "center" },
+  btn: {
+    backgroundColor: colors.mint,
+    paddingVertical: 14,
+    borderRadius: 12,
     alignItems: "center",
     marginTop: 8,
   },
   btnDisabled: { opacity: 0.6 },
-  btnText: { color: "#fff", fontWeight: "600", fontSize: 16 },
+  btnText: { color: colors.bg, fontWeight: "700", fontSize: 16 },
 });

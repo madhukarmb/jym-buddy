@@ -11,6 +11,7 @@ import { Link } from "expo-router";
 import { useClients } from "@/features/clients/use-clients";
 import { EnrolClientModal } from "@/features/clients/enrol-client-modal";
 import type { Client } from "@/types/firestore";
+import { colors } from "@/lib/theme";
 
 export default function ClientsList() {
   const { clients, loading, error } = useClients();
@@ -69,35 +70,36 @@ function ClientRow({ client }: { client: Client }) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 16, gap: 12 },
+  container: { flex: 1, padding: 16, gap: 12, backgroundColor: colors.bg },
   header: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
-  title: { fontSize: 22, fontWeight: "700" },
+  title: { fontSize: 22, fontWeight: "800", color: colors.text },
   enrolBtn: {
-    backgroundColor: "#208AEF",
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    borderRadius: 8,
+    backgroundColor: colors.mint,
+    paddingVertical: 10,
+    paddingHorizontal: 14,
+    borderRadius: 10,
   },
-  enrolBtnText: { color: "#fff", fontWeight: "600", fontSize: 14 },
+  enrolBtnText: { color: colors.bg, fontWeight: "700", fontSize: 14 },
   center: { padding: 32, alignItems: "center" },
   errorCard: {
     borderWidth: 1,
-    borderColor: "#ffcdd2",
-    backgroundColor: "#ffebee",
-    borderRadius: 8,
+    borderColor: colors.danger,
+    backgroundColor: colors.dangerSoft,
+    borderRadius: 12,
     padding: 12,
   },
-  errorText: { color: "#c62828" },
+  errorText: { color: colors.danger },
   empty: {
     borderWidth: 1,
-    borderColor: "#e0e0e0",
-    borderRadius: 8,
+    borderColor: colors.border,
+    backgroundColor: colors.surface,
+    borderRadius: 12,
     padding: 24,
     alignItems: "center",
     gap: 4,
   },
-  muted: { color: "#444", fontSize: 15 },
-  hint: { color: "#888", fontSize: 13 },
+  muted: { color: colors.text, fontSize: 15 },
+  hint: { color: colors.textMuted, fontSize: 13 },
   list: { gap: 10, paddingBottom: 16 },
   row: {
     flexDirection: "row",
@@ -105,20 +107,20 @@ const styles = StyleSheet.create({
     gap: 12,
     padding: 12,
     borderWidth: 1,
-    borderColor: "#e0e0e0",
-    borderRadius: 8,
-    backgroundColor: "#fff",
+    borderColor: colors.border,
+    borderRadius: 12,
+    backgroundColor: colors.surface,
   },
   avatar: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: "#e3f2fd",
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: colors.mintSoft,
     alignItems: "center",
     justifyContent: "center",
   },
-  avatarText: { color: "#0d47a1", fontWeight: "700" },
+  avatarText: { color: colors.mint, fontWeight: "800", fontSize: 16 },
   rowText: { flex: 1 },
-  name: { fontSize: 16, fontWeight: "600" },
-  email: { fontSize: 13, color: "#666" },
+  name: { fontSize: 16, fontWeight: "700", color: colors.text },
+  email: { fontSize: 13, color: colors.textMuted },
 });
