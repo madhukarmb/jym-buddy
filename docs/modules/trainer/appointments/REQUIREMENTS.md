@@ -9,7 +9,8 @@ Show the Trainer the list of appointments scheduled for **today**, and let them 
 ## 2. Data Source
 - Reads from **Appointment** records (see [BRD §7 Data Model](../../../BRD.md)) where:
   - `dateTime` falls within today, AND
-  - `status` ∈ {`scheduled`, `checked_in`, `no_show`} (i.e., not `cancelled`, not `rescheduled`).
+  - `status` ∈ {`scheduled`, `checked_in`, `no_show`, `cancelled`} (i.e., everything except `rescheduled` — the rescheduled original is replaced by its new appointment row).
+- Cancelled rows stay visible with a strike-through so the trainer keeps a day-log; their action buttons are hidden because cancel is terminal.
 - Sorted by `dateTime` ascending.
 - Empty state: "No appointments today."
 
@@ -29,7 +30,7 @@ Each row displays:
 | **Cancel** | Set `status = cancelled` (hidden from today's list). Parent recurring Schedule is unaffected. |
 
 - Check-in and No-show are mutually exclusive; the most recent action wins. The trainer may toggle between them if mistakenly tapped.
-- Reschedule and Cancel are terminal for the current row (the row disappears from today's list once applied).
+- Reschedule and Cancel are terminal for the current row. Reschedule removes the original row (the new appointment row replaces it); Cancel keeps the original row visible with strike-through and no action buttons.
 - **Confirmation requirements**:
   - Check-in / No Show — single tap, no confirmation (easy to toggle if mistapped).
   - **Cancel** — confirmation dialog: "Cancel this appointment?" with **Cancel appointment** / **Keep**. Destructive action style.
