@@ -8,12 +8,14 @@ import {
   View,
 } from "react-native";
 import { Link } from "expo-router";
+import { LinearGradient } from "expo-linear-gradient";
 import { useAuth } from "@/lib/auth";
 import { useTodayAppointments } from "@/features/appointments/use-today-appointments";
 import { useClients } from "@/features/clients/use-clients";
 import { TodayAppointmentRow } from "@/features/appointments/today-appointment-row";
 import { EnrolClientModal } from "@/features/clients/enrol-client-modal";
-import { colors } from "@/lib/theme";
+import { useOutstandingByClient } from "@/features/sessions/use-outstanding-by-client";
+import { colors, gradients } from "@/lib/theme";
 import type { Client } from "@/types/firestore";
 
 const HOME_TILE_LIMIT = 6;
@@ -24,17 +26,37 @@ const dateFmt = new Intl.DateTimeFormat("en-IN", {
   month: "long",
 });
 
-function ClientTile({ client, variant }: { client: Client; variant: "mint" | "lavender" }) {
+function ClientTile({
+  client,
+  outstanding,
+}: {
+  client: Client;
+  outstanding: number;
+}) {
   const initial = client.name.trim().charAt(0).toUpperCase() || "?";
   return (
     <Link href={{ pathname: "/client/[id]", params: { id: client.id } }} asChild>
-      <Pressable style={variant === "mint" ? styles.tileMint : styles.tileLavender}>
-        <View style={styles.tileAvatar}>
-          <Text style={styles.tileAvatarText}>{initial}</Text>
-        </View>
-        <Text style={styles.tileName} numberOfLines={2}>
-          {client.name}
-        </Text>
+      <Pressable style={styles.tileWrap}>
+        <LinearGradient
+          colors={gradients.primary}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={styles.tile}
+        >
+          <View style={styles.tileTop}>
+            <View style={styles.tileAvatar}>
+              <Text style={styles.tileAvatarText}>{initial}</Text>
+            </View>
+            {outstanding > 0 ? (
+              <View style={styles.badge} accessibilityLabel={`${outstanding} outstanding`}>
+                <Text style={styles.badgeText}>{outstanding}</Text>
+              </View>
+            ) : null}
+          </View>
+          <Text style={styles.tileName} numberOfLines={2}>
+            {client.name}
+          </Text>
+        </LinearGradient>
       </Pressable>
     </Link>
   );
@@ -44,20 +66,16 @@ export default function TrainerHome() {
   const user = useAuth((s) => s.user);
   const { appointments, loading, error } = useTodayAppointments(user?.uid);
   const { clients, loading: clientsLoading } = useClients();
+  const outstandingByClient = useOutstandingByClient();
   const [enrolling, setEnrolling] = useState(false);
 
-  const firstName = (user?.displayName ?? "").split(" ")[0] || "Trainer";
   const today = dateFmt.format(new Date());
   const homeClients = clients.slice(0, HOME_TILE_LIMIT);
   const hasMoreClients = clients.length > HOME_TILE_LIMIT;
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <View>
-        <Text style={styles.welcome}>Welcome back,</Text>
-        <Text style={styles.greeting}>{firstName}</Text>
-        <Text style={styles.date}>{today}</Text>
-      </View>
+      <Text style={styles.date}>{today}</Text>
 
       <Text style={styles.sectionTitle}>Today&rsquo;s Appointments</Text>
 
@@ -111,8 +129,12 @@ export default function TrainerHome() {
         </View>
       ) : (
         <View style={styles.tileGrid}>
-          {homeClients.map((c, i) => (
-            <ClientTile key={c.id} client={c} variant={i % 2 === 0 ? "mint" : "lavender"} />
+          {homeClients.map((c) => (
+            <ClientTile
+              key={c.id}
+              client={c}
+              outstanding={outstandingByClient[c.id] ?? 0}
+            />
           ))}
         </View>
       )}
@@ -123,15 +145,16 @@ export default function TrainerHome() {
 }
 
 const styles = StyleSheet.create({
-  container: { padding: 16, gap: 16, backgroundColor: colors.bg, flexGrow: 1 },
-  welcome: { fontSize: 13, color: colors.textMuted, fontStyle: "italic" },
-  greeting: {
-    fontSize: 28,
-    fontWeight: "800",
-    color: colors.text,
-    letterSpacing: -0.5,
+  container: {
+    padding: 16,
+    gap: 16,
+    backgroundColor: colors.bg,
+    flexGrow: 1,
+    maxWidth: 560,
+    width: "100%",
+    alignSelf: "center",
   },
-  date: { fontSize: 13, color: colors.textMuted, marginTop: 4 },
+  date: { fontSize: 13, color: colors.textMuted, fontStyle: "italic" },
   sectionTitle: {
     fontSize: 16,
     fontWeight: "700",
@@ -183,33 +206,41 @@ const styles = StyleSheet.create({
     flexWrap: "wrap",
     gap: 12,
   },
-  tileMint: {
+  tileWrap: {
     flexBasis: "47%",
-    flexGrow: 1,
     aspectRatio: 1.4,
-    backgroundColor: colors.mint,
     borderRadius: 16,
+    overflow: "hidden",
+  },
+  tile: {
+    flex: 1,
     padding: 14,
     justifyContent: "space-between",
   },
-  tileLavender: {
-    flexBasis: "47%",
-    flexGrow: 1,
-    aspectRatio: 1.4,
-    backgroundColor: colors.lavender,
-    borderRadius: 16,
-    padding: 14,
+  tileTop: {
+    flexDirection: "row",
+    alignItems: "center",
     justifyContent: "space-between",
   },
   tileAvatar: {
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: "rgba(14,16,21,0.18)",
+    backgroundColor: "rgba(14,16,21,0.16)",
     alignItems: "center",
     justifyContent: "center",
   },
   tileAvatarText: { color: colors.bg, fontWeight: "800", fontSize: 16 },
+  badge: {
+    minWidth: 24,
+    height: 24,
+    paddingHorizontal: 8,
+    borderRadius: 12,
+    backgroundColor: colors.bg,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  badgeText: { color: colors.text, fontSize: 12, fontWeight: "800" },
   tileName: {
     color: colors.bg,
     fontWeight: "800",

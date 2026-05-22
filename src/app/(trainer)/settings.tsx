@@ -55,7 +55,15 @@ export default function TrainerSettings() {
 }
 
 const styles = StyleSheet.create({
-  container: { padding: 16, gap: 16, backgroundColor: colors.bg, flex: 1 },
+  container: {
+    padding: 16,
+    gap: 16,
+    backgroundColor: colors.bg,
+    flex: 1,
+    maxWidth: 560,
+    width: "100%",
+    alignSelf: "center",
+  },
   card: {
     borderWidth: 1,
     borderColor: colors.border,

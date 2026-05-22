@@ -1,9 +1,10 @@
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { Link, Redirect, router, useLocalSearchParams } from "expo-router";
+import { LinearGradient } from "expo-linear-gradient";
 import { useAuth } from "@/lib/auth";
 import { useClient } from "@/features/clients/use-client";
 import { ActiveSchedulesSection } from "@/features/schedules/active-schedules-section";
-import { colors } from "@/lib/theme";
+import { colors, gradients } from "@/lib/theme";
 
 export default function ClientDetail() {
   const role = useAuth((s) => s.user?.role);
@@ -33,26 +34,51 @@ export default function ClientDetail() {
       <Text style={styles.sectionTitle}>Active Schedules</Text>
       {id ? <ActiveSchedulesSection clientId={id} /> : null}
 
-      <Text style={styles.sectionTitle}>Shortcuts</Text>
-      <Link
-        href={{ pathname: "/schedule/new", params: { clientId: id } }}
-        asChild
-      >
-        <Pressable style={styles.shortcut}>
-          <Text style={styles.shortcutText}>+ Add Schedule for this client</Text>
-        </Pressable>
-      </Link>
-      <Link href={{ pathname: "/sessions/[clientId]", params: { clientId: id } }} asChild>
-        <Pressable style={styles.shortcutSecondary}>
-          <Text style={styles.shortcutSecondaryText}>View Sessions for this client</Text>
-        </Pressable>
-      </Link>
+      <View style={styles.shortcutRow}>
+        <Link
+          href={{ pathname: "/schedule/new", params: { clientId: id } }}
+          asChild
+        >
+          <Pressable style={styles.shortcutWrap}>
+            <LinearGradient
+              colors={gradients.primary}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={styles.shortcut}
+            >
+              <Text style={styles.shortcutKicker}>Schedule</Text>
+              <Text style={styles.shortcutText}>+ Add</Text>
+            </LinearGradient>
+          </Pressable>
+        </Link>
+        <Link href={{ pathname: "/sessions/[clientId]", params: { clientId: id } }} asChild>
+          <Pressable style={styles.shortcutWrap}>
+            <LinearGradient
+              colors={gradients.primaryReverse}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={styles.shortcut}
+            >
+              <Text style={styles.shortcutKicker}>Billing</Text>
+              <Text style={styles.shortcutText}>Outstanding</Text>
+            </LinearGradient>
+          </Pressable>
+        </Link>
+      </View>
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { padding: 16, gap: 16, backgroundColor: colors.bg, flexGrow: 1 },
+  container: {
+    padding: 16,
+    gap: 16,
+    backgroundColor: colors.bg,
+    flexGrow: 1,
+    maxWidth: 560,
+    width: "100%",
+    alignSelf: "center",
+  },
   back: { paddingVertical: 4 },
   backText: { color: colors.mint, fontSize: 15, fontWeight: "700" },
   profile: {
@@ -84,20 +110,23 @@ const styles = StyleSheet.create({
     textTransform: "uppercase",
     letterSpacing: 0.5,
   },
+  shortcutRow: { flexDirection: "row", gap: 12, marginTop: 8 },
+  shortcutWrap: {
+    flex: 1,
+    borderRadius: 12,
+    overflow: "hidden",
+  },
   shortcut: {
-    backgroundColor: colors.mint,
     paddingVertical: 14,
-    borderRadius: 12,
-    alignItems: "center",
+    paddingHorizontal: 14,
+    gap: 4,
   },
-  shortcutText: { color: colors.bg, fontWeight: "700" },
-  shortcutSecondary: {
-    backgroundColor: "transparent",
-    borderWidth: 1,
-    borderColor: colors.lavender,
-    paddingVertical: 14,
-    borderRadius: 12,
-    alignItems: "center",
+  shortcutKicker: {
+    color: "rgba(14,16,21,0.55)",
+    fontSize: 11,
+    fontWeight: "700",
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
   },
-  shortcutSecondaryText: { color: colors.lavender, fontWeight: "700" },
+  shortcutText: { color: colors.bg, fontWeight: "800", fontSize: 16 },
 });

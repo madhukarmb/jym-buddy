@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { ActivityIndicator, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 import { Redirect } from "expo-router";
+import { LinearGradient } from "expo-linear-gradient";
 import { useAuth } from "@/lib/auth";
-import { colors } from "@/lib/theme";
+import { colors, gradients } from "@/lib/theme";
 
 export default function Login() {
   const signIn = useAuth((s) => s.signIn);
@@ -57,15 +58,22 @@ export default function Login() {
       {error ? <Text style={styles.error}>{error}</Text> : null}
 
       <Pressable
-        style={[styles.btn, submitting && styles.btnDisabled]}
+        style={[styles.btnWrap, submitting && styles.btnDisabled]}
         onPress={onSubmit}
         disabled={submitting}
       >
-        {submitting ? (
-          <ActivityIndicator color={colors.bg} />
-        ) : (
-          <Text style={styles.btnText}>Sign in</Text>
-        )}
+        <LinearGradient
+          colors={gradients.primary}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={styles.btn}
+        >
+          {submitting ? (
+            <ActivityIndicator color={colors.bg} />
+          ) : (
+            <Text style={styles.btnText}>Sign in</Text>
+          )}
+        </LinearGradient>
       </Pressable>
     </View>
   );
@@ -107,13 +115,15 @@ const styles = StyleSheet.create({
     color: colors.text,
   },
   error: { color: colors.danger, fontSize: 14, textAlign: "center" },
-  btn: {
-    backgroundColor: colors.mint,
-    paddingVertical: 14,
-    borderRadius: 12,
-    alignItems: "center",
+  btnWrap: {
+    borderRadius: 999,
+    overflow: "hidden",
     marginTop: 8,
   },
+  btn: {
+    paddingVertical: 14,
+    alignItems: "center",
+  },
   btnDisabled: { opacity: 0.6 },
-  btnText: { color: colors.bg, fontWeight: "700", fontSize: 16 },
+  btnText: { color: colors.bg, fontWeight: "800", fontSize: 16, letterSpacing: 0.3 },
 });

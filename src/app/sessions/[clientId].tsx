@@ -167,7 +167,16 @@ function statusLabel(status: Appointment["status"]): string {
 }
 
 const styles = StyleSheet.create({
-  container: { padding: 16, gap: 12, paddingBottom: 32, backgroundColor: colors.bg, flexGrow: 1 },
+  container: {
+    padding: 16,
+    gap: 12,
+    paddingBottom: 32,
+    backgroundColor: colors.bg,
+    flexGrow: 1,
+    maxWidth: 560,
+    width: "100%",
+    alignSelf: "center",
+  },
   back: { paddingVertical: 4 },
   backText: { color: colors.mint, fontSize: 15, fontWeight: "700" },
   header: {

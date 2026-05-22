@@ -70,7 +70,15 @@ function ClientRow({ client }: { client: Client }) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 16, gap: 12, backgroundColor: colors.bg },
+  container: {
+    flex: 1,
+    padding: 16,
+    gap: 12,
+    backgroundColor: colors.bg,
+    maxWidth: 560,
+    width: "100%",
+    alignSelf: "center",
+  },
   header: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
   title: { fontSize: 22, fontWeight: "800", color: colors.text },
   enrolBtn: {
