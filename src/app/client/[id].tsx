@@ -1,5 +1,5 @@
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
-import { Redirect, router, useLocalSearchParams } from "expo-router";
+import { Link, Redirect, router, useLocalSearchParams } from "expo-router";
 import { useAuth } from "@/lib/auth";
 import { useClient } from "@/features/clients/use-client";
 
@@ -34,10 +34,16 @@ export default function ClientDetail() {
       </View>
 
       <Text style={styles.sectionTitle}>Shortcuts</Text>
+      <Link
+        href={{ pathname: "/schedule/new", params: { clientId: id } }}
+        asChild
+      >
+        <Pressable style={styles.shortcut}>
+          <Text style={styles.shortcutText}>+ Add Schedule for this client</Text>
+        </Pressable>
+      </Link>
       <View style={styles.placeholder}>
-        <Text style={styles.muted}>
-          “Add Schedule” and “View Sessions” unlock once those features ship.
-        </Text>
+        <Text style={styles.muted}>“View Sessions” unlocks once Sessions ships.</Text>
       </View>
     </ScrollView>
   );
@@ -77,4 +83,11 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   muted: { color: "#666", fontSize: 13 },
+  shortcut: {
+    backgroundColor: "#208AEF",
+    paddingVertical: 12,
+    borderRadius: 8,
+    alignItems: "center",
+  },
+  shortcutText: { color: "#fff", fontWeight: "600" },
 });

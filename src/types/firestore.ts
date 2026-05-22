@@ -17,6 +17,25 @@ export interface Client {
   createdAt: Timestamp;
 }
 
+export type Weekday = 0 | 1 | 2 | 3 | 4 | 5 | 6;
+
+export interface ScheduleSlot {
+  weekday: Weekday;
+  startHour: number;
+  startMinute: number;
+  durationMinutes: number;
+}
+
+export interface Schedule {
+  id: string;
+  clientId: string;
+  trainerId: string;
+  slots: ScheduleSlot[];
+  startDate: Timestamp;
+  endDate: Timestamp | null;
+  createdAt: Timestamp;
+}
+
 export interface Appointment {
   id: string;
   clientId: string;
