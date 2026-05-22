@@ -5,6 +5,7 @@ import {
   ScrollView,
   StyleSheet,
   Text,
+  TextInput,
   View,
 } from "react-native";
 import { Link } from "expo-router";
@@ -16,6 +17,16 @@ import { colors } from "@/lib/theme";
 export default function ClientsList() {
   const { clients, loading, error } = useClients();
   const [enrolling, setEnrolling] = useState(false);
+  const [query, setQuery] = useState("");
+
+  const trimmedQuery = query.trim().toLowerCase();
+  const filtered = trimmedQuery
+    ? clients.filter(
+        (c) =>
+          c.name.toLowerCase().includes(trimmedQuery) ||
+          c.email.toLowerCase().includes(trimmedQuery),
+      )
+    : clients;
 
   return (
     <View style={styles.container}>
@@ -26,9 +37,34 @@ export default function ClientsList() {
         </Pressable>
       </View>
 
+      {clients.length > 0 ? (
+        <View style={styles.searchRow}>
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Search by name or email"
+            placeholderTextColor={colors.textDim}
+            value={query}
+            onChangeText={setQuery}
+            autoCapitalize="none"
+            autoCorrect={false}
+            clearButtonMode="while-editing"
+          />
+          {query.length > 0 ? (
+            <Pressable
+              style={styles.clearBtn}
+              onPress={() => setQuery("")}
+              hitSlop={8}
+              accessibilityLabel="Clear search"
+            >
+              <Text style={styles.clearBtnText}>×</Text>
+            </Pressable>
+          ) : null}
+        </View>
+      ) : null}
+
       {loading ? (
         <View style={styles.center}>
-          <ActivityIndicator />
+          <ActivityIndicator color={colors.mint} />
         </View>
       ) : error ? (
         <View style={styles.errorCard}>
@@ -39,9 +75,13 @@ export default function ClientsList() {
           <Text style={styles.muted}>No clients yet.</Text>
           <Text style={styles.hint}>Tap “+ Enrol Client” to add the first one.</Text>
         </View>
+      ) : filtered.length === 0 ? (
+        <View style={styles.empty}>
+          <Text style={styles.muted}>No clients match “{query}”.</Text>
+        </View>
       ) : (
         <ScrollView contentContainerStyle={styles.list}>
-          {clients.map((c) => (
+          {filtered.map((c) => (
             <ClientRow key={c.id} client={c} />
           ))}
         </ScrollView>
@@ -88,6 +128,23 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   enrolBtnText: { color: colors.bg, fontWeight: "700", fontSize: 14 },
+  searchRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.surface,
+    borderRadius: 10,
+    paddingHorizontal: 12,
+  },
+  searchInput: {
+    flex: 1,
+    paddingVertical: 10,
+    fontSize: 15,
+    color: colors.text,
+  },
+  clearBtn: { paddingHorizontal: 4 },
+  clearBtnText: { color: colors.textMuted, fontSize: 20, fontWeight: "700" },
   center: { padding: 32, alignItems: "center" },
   errorCard: {
     borderWidth: 1,
