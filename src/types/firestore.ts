@@ -48,3 +48,12 @@ export interface Appointment {
   billingClosureId?: string;
   createdAt: Timestamp;
 }
+
+export interface BillingClosure {
+  id: string;
+  clientId: string;
+  trainerId: string;
+  closedAt: Timestamp;
+  sessionCount: number;
+  amountPaid: number;
+}

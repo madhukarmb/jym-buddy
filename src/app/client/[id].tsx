@@ -41,9 +41,11 @@ export default function ClientDetail() {
           <Text style={styles.shortcutText}>+ Add Schedule for this client</Text>
         </Pressable>
       </Link>
-      <View style={styles.placeholder}>
-        <Text style={styles.muted}>“View Sessions” unlocks once Sessions ships.</Text>
-      </View>
+      <Link href={{ pathname: "/sessions/[clientId]", params: { clientId: id } }} asChild>
+        <Pressable style={[styles.shortcut, styles.shortcutSecondary]}>
+          <Text style={styles.shortcutSecondaryText}>View Sessions for this client</Text>
+        </Pressable>
+      </Link>
     </ScrollView>
   );
 }
@@ -89,4 +91,10 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   shortcutText: { color: "#fff", fontWeight: "600" },
+  shortcutSecondary: {
+    backgroundColor: "#fff",
+    borderWidth: 1,
+    borderColor: "#208AEF",
+  },
+  shortcutSecondaryText: { color: "#208AEF", fontWeight: "600" },
 });

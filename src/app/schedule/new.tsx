@@ -110,7 +110,7 @@ export default function NewSchedule() {
 
   const canSave = useMemo(() => {
     if (!client || submitting) return false;
-    if (mode === "oneoff") return true;
+    if (mode === "oneoff") return true; // past dates allowed for back-fill
     if (slots.length === 0) return false;
     if (hasEndDate && endDate.getTime() < startDate.getTime()) return false;
     return true;
@@ -227,11 +227,10 @@ export default function NewSchedule() {
       {mode === "oneoff" ? (
         <>
           <Text style={styles.label}>When</Text>
-          <DateTimeField
-            value={dateTime}
-            minimumDate={new Date()}
-            onChange={setDateTime}
-          />
+          <DateTimeField value={dateTime} onChange={setDateTime} />
+          <Text style={styles.hint}>
+            Past dates allowed — back-fill a session that already happened.
+          </Text>
 
           <Text style={styles.label}>Duration</Text>
           <View style={styles.chips}>
